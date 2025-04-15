@@ -131,7 +131,7 @@ Memory notes: {memory}
         "additionalProperties": False
     }
     data = {
-        "model": "openai/gpt-4.1",
+        "model": "anthropic/claude-3.7-sonnet",
         "messages": [
             {
                 "role": "user",

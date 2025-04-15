@@ -55,6 +55,32 @@ def normalize_action_type(action_type):
     action_type = action_type.lower()
     return mapping.get(action_type, action_type)
 
+def generate_manual(game_title):
+    """Generate the persistent manual content for the given game title (controls, gameplay basics, discoveries)."""
+    manual_path = os.path.join(config.MANUALS_DIR, f"{game_title.replace(' ', '_')}_manual.md")
+    controls = (
+        f"# {game_title} Automation Manual\n"
+        "\n## Controls (Discovered)\n"
+        "- Mouse: Used for most UI interactions, selecting heroes, abilities, and targets.\n"
+        "- Keyboard: Common keys include arrow keys, D/right arrow for movement, 1-4 for skill selection, Enter/Space/Esc for confirmation or menu.\n"
+        "\n## Basic Gameplay (Discovered)\n"
+        "- Progression: Use mouse or keyboard to navigate menus, select campaign, and advance through tutorial.\n"
+        "- Combat: Select a hero, choose a skill (via mouse or number key), then click on an enemy to attack.\n"
+        "- Movement: Move mouse to right edge or use D/right arrow to advance along the road.\n"
+        "- Interactions: Click on objects (e.g., chests, torches) to interact.\n"
+        "- Tutorials: Pop-ups may block input; close with mouse click on 'X' or Esc.\n"
+        "\n## Persistent Discoveries\n"
+        "- Some actions require explicit skill selection before targeting.\n"
+        "- If input is unresponsive, check for overlays or pop-ups.\n"
+        "- Keyboard shortcuts (1-4) can select skills directly.\n"
+        "- Progress may require alternating between mouse and keyboard.\n"
+        "- If stuck, try Esc, Enter, or Space to dismiss overlays.\n"
+        "\n(Manual is regenerated at the start of each run. See run_summaries/ for detailed run logs.)\n"
+    )
+    with open(manual_path, 'w') as mf:
+        mf.write(controls)
+    return manual_path
+
 def main():
     state = None  # Holds the last state/analysis
     analysis = None
@@ -68,6 +94,9 @@ def main():
     if not os.path.exists(JOURNAL_DIR):
         os.makedirs(JOURNAL_DIR)
         log(f"Created {JOURNAL_DIR} directory for journals", "DEBUG")
+
+    # Regenerate or load manual for the current game
+    manual_path = generate_manual(config.GAME_TITLE)
 
     # countdown for 3 seconds before starting
     log(f"[OODA: OBSERVE] Starting in 3 seconds...", "OODA")
@@ -198,34 +227,21 @@ def main():
                 except Exception as e:
                     log(f"Failed to save journal entry: {e}", "ERROR")
 
-        # --- Update manual and run log summary at the end of each run ---
+        # Save each run summary as a timestamped file in run_summaries
         try:
-            # Gather insights from the latest journal and plan
-            manual_update = f"\n## Run on {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-            if latest_journal_content:
-                manual_update += f"\n### Journal Excerpt\n{latest_journal_content}\n"
-            if plan:
-                manual_update += f"\n### Plan\n{plan}\n"
-            # Append a short run log
-            run_log = f"\n---\n**Run Summary ({datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')})**\n- Last plan: {plan}\n- Last analysis: {analysis}\n---\n"
-            # Read existing manual (if any)
-            try:
-                manual_path = config.MANUAL_PATH
-                if os.path.exists(manual_path):
-                    with open(manual_path, 'r') as mf:
-                        manual_content = mf.read()
-                else:
-                    manual_content = ''
-                # Append updates
-                manual_content += manual_update
-                manual_content += run_log
-                with open(manual_path, 'w') as mf:
-                    mf.write(manual_content)
-                log(f"Manual updated at {manual_path}", "MANUAL")
-            except Exception as e:
-                log(f"Failed to update manual: {e}", "ERROR")
+            run_summary = (
+                f"# Run Summary {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+                f"## Narrative\n{narrative}\n\n"
+                f"## Plan\n{plan}\n\n"
+                f"## Analysis\n{analysis}\n\n"
+                f"## Actions\n{actions}\n\n"
+            )
+            run_summary_filename = os.path.join(config.RUN_SUMMARIES_DIR, f"run_{int(time.time())}.md")
+            with open(run_summary_filename, 'w') as rsf:
+                rsf.write(run_summary)
+            log(f"Saved run summary: {run_summary_filename}", "RUN_SUMMARY")
         except Exception as e:
-            log(f"Error in manual/run log update: {e}", "ERROR")
+            log(f"Failed to save run summary: {e}", "ERROR")
 
 if __name__ == "__main__":
     main()

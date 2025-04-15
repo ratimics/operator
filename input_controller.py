@@ -57,7 +57,7 @@ def get_window_rect(title=WINDOW_TITLE):
                     width = int(bounds['Width'])
                     height = int(bounds['Height'])
                     # Adjust for macOS title bar (commonly 22px)
-                    TITLE_BAR_HEIGHT = 0
+                    TITLE_BAR_HEIGHT = 22
                     top += TITLE_BAR_HEIGHT
                     height -= TITLE_BAR_HEIGHT
                     # Activate window using AppleScript

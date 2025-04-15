@@ -7,6 +7,7 @@ import os
 
 # Game configuration
 GAME_TITLE = "Darkest Dungeon"
+LLM_MODEL="openai/gpt-4.1"
 
 # Manual (AI-generated)
 MANUALS_DIR = "manuals"

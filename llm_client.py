@@ -13,6 +13,7 @@ import logging
 from requests.exceptions import ConnectionError, ChunkedEncodingError
 import urllib3
 from PIL import Image
+import config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -131,7 +132,7 @@ Memory notes: {memory}
         "additionalProperties": False
     }
     data = {
-        "model": "anthropic/claude-3.7-sonnet",
+        "model": config.LLM_MODEL,
         "messages": [
             {
                 "role": "user",

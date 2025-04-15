@@ -90,6 +90,16 @@ Memory notes: {memory}
     )
     if latest_journal:
         context += f"\nLatest journal entry: {latest_journal}\n"
+    # --- BEGIN: WASD-style mouse control instructions ---
+    # For mouse actions, use these types:
+    # - mouse_move_direction: Move the mouse in a direction ('w', 'a', 's', 'd', 'up', 'down', 'left', 'right') for a specified duration (ms). Example:
+    #   {"type": "mouse_move_direction", "direction": "d", "duration_ms": 200, "time_offset_ms": 0}
+    # - mouse_click: Click at the current mouse position for a specified duration (ms). Example:
+    #   {"type": "mouse_click", "button": "left", "duration_ms": 100, "time_offset_ms": 100}
+    # - mouse_double_click: Double-click at the current mouse position for a specified duration (ms) per click. Example:
+    #   {"type": "mouse_double_click", "button": "left", "duration_ms": 100, "time_offset_ms": 200}
+    # Do not use absolute pixel coordinates for mouse actions unless explicitly required for legacy compatibility.
+    # --- END: WASD-style mouse control instructions ---
     prompt = context + "\nRespond only with the JSON object as described above."
     # Updated schema without planning_paths
     schema = {
@@ -105,23 +115,22 @@ Memory notes: {memory}
                     "properties": {
                         "type": {
                             "type": "string",
-                            "enum": ["key_press", "key_release", "mouse_move", "mouse_press", "mouse_release", "mouse_drag"],
+                            "enum": ["key_press", "key_release", "mouse_move", "mouse_press", "mouse_release", "mouse_drag", "mouse_move_direction", "mouse_click", "mouse_double_click"],
                             "description": "The type of input action."
                         },
+                        "direction": {"type": "string", "description": "Direction for mouse_move_direction (w/a/s/d/up/down/left/right)."},
+                        "duration_ms": {"type": "integer", "description": "Duration in milliseconds for the action."},
+                        "button": {"type": "string", "enum": ["left", "right", "middle"], "description": "Mouse button for click actions."},
+                        "time_offset_ms": {"type": "integer", "description": "Start time in milliseconds relative to the beginning of the action sequence (0-2000)."},
                         "key": {"type": "string", "description": "Key identifier (e.g., 'w', 'a', 'enter', 'shift'). Required for key actions."},
                         "x": {"type": "integer", "description": "X coordinate. Required for mouse actions."},
                         "y": {"type": "integer", "description": "Y coordinate. Required for mouse actions."},
-                        "button": {"type": "string", "enum": ["left", "right", "middle"], "description": "Mouse button. Required for mouse press/release/drag."},
-                        "time_offset_ms": {
-                            "type": "integer",
-                            "description": "Start time in milliseconds relative to the beginning of the action sequence (0-2000)."
-                        },
                         "duration_ms": {
                             "type": "integer",
                             "description": "Duration for holding a key or mouse button (used with key_press or mouse_press if release is not separate)."
                         }
                     },
-                    "required": ["type", "key", "x", "y", "button", "time_offset_ms", "duration_ms"],
+                    "required": ["type", "key", "x", "y", "button", "time_offset_ms", "duration_ms", "direction"],
                     "additionalProperties": False
                 }
             },

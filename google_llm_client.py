@@ -29,7 +29,8 @@ RESPONSE_SCHEMA = {
                     "type": {
                         "type": "string",
                         "description": "Type of action (e.g., key_press, mouse_move).",
-                        "nullable": False
+                        "nullable": False,
+                        "enum": ["key_press", "key_release", "mouse_move", "mouse_press", "mouse_release", "mouse_drag", "mouse_move_direction", "mouse_click", "mouse_double_click"]
                     },
                     "parameters": {
                         "type": "object",
@@ -39,7 +40,9 @@ RESPONSE_SCHEMA = {
                             "key": {"type": "string", "description": "Key to press or release."},
                             "x": {"type": "integer", "description": "X coordinate for mouse actions."},
                             "y": {"type": "integer", "description": "Y coordinate for mouse actions."},
-                            "button": {"type": "string", "description": "Mouse button (e.g., left, right)."}
+                            "button": {"type": "string", "description": "Mouse button (e.g., left, right).", "enum": ["left", "right", "middle"]},
+                            "direction": {"type": "string", "description": "Direction for mouse_move_direction (w/a/s/d/up/down/left/right)."},
+                            "duration_ms": {"type": "integer", "description": "Duration in milliseconds for the action."}
                         }
                     },
                     "time_offset_ms": {
@@ -123,6 +126,17 @@ Analyze the screenshots and context, then return a JSON object with these keys:
 - actions: Array of timed actions to execute within the next 2 seconds (2000ms). Each action has a type, parameters, and a start time offset in milliseconds.
 - analysis: After acting, analyze if the intended result was achieved and describe the new state.
 - pinned_screenshot: (Optional) Filename or index of a screenshot to pin for future context.
+
+# --- BEGIN: WASD-style mouse control instructions ---
+# For mouse actions, use these types:
+# - mouse_move_direction: Move the mouse in a direction ('w', 'a', 's', 'd', 'up', 'down', 'left', 'right') for a specified duration (ms). Example:
+#   {"type": "mouse_move_direction", "direction": "d", "duration_ms": 200, "time_offset_ms": 0}
+# - mouse_click: Click at the current mouse position for a specified duration (ms). Example:
+#   {"type": "mouse_click", "button": "left", "duration_ms": 100, "time_offset_ms": 100}
+# - mouse_double_click: Double-click at the current mouse position for a specified duration (ms) per click. Example:
+#   {"type": "mouse_double_click", "button": "left", "duration_ms": 100, "time_offset_ms": 200}
+# Do not use absolute pixel coordinates for mouse actions unless explicitly required for legacy compatibility.
+# --- END: WASD-style mouse control instructions ---
 
 Screen resolution: {screen_resolution}
 Previous state: {state}

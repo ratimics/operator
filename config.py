@@ -6,7 +6,7 @@ Central configuration for the automation agent. Stores game title, manual path, 
 import os
 
 # Game configuration
-GAME_TITLE = "Darkest Dungeon"
+GAME_TITLE = "Factorio: Space Age 2.0.43"
 LLM_MODEL="openai/gpt-4.1"
 
 # Manual (AI-generated)
